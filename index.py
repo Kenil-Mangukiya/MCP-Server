@@ -25,7 +25,6 @@ def create_user(data: CreateUserSchema):
 
     try:
         result = user_collection.insert_one(create_user)
-        print(f"Result is : {result}")
     except DuplicateKeyError:
         return {
             "success": False,
@@ -36,4 +35,8 @@ def create_user(data: CreateUserSchema):
         "success": True,
         "message": str(result.inserted_id)
     }
+
+if __name__ == "__main__":
+    mcp.run()
+
 
