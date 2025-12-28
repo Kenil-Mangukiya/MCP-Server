@@ -50,6 +50,32 @@ def create_user(data: CreateUserSchema):
         "message": str(result.inserted_id)
     }
 
+@mcp.tool()
+def fetch_all_users():
+    """
+    Fetch all users from the database
+    """
+    try:
+        db = get_db()
+        user_collection = db["users"]
+        users = []
+        for user in user_collection.find():
+            users.append({
+                "id": str(user["_id"]),
+                "username": user.get("username"),
+                "email": user.get("email")
+            })
+        return {
+            "success": True,
+            "message": f"Total users in the database are: {len(users)}",
+            "users": users
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        } 
+
 
 if __name__ == "__main__":
     mcp.run()
