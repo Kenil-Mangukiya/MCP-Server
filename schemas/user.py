@@ -10,4 +10,7 @@ class UpdateUserSchema(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=30)
     email: EmailStr
     password: Optional[str] = Field(None, min_length=5)
+
+class DeleteUserSchema(BaseModel):
+    email: EmailStr
     

@@ -2,7 +2,7 @@ from mcp.server.fastmcp import FastMCP
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 from db.db import get_db
-from schemas.user import CreateUserSchema, UpdateUserSchema
+from schemas.user import CreateUserSchema, UpdateUserSchema, DeleteUserSchema
 import hashlib
 import logging
 import sys
@@ -79,7 +79,7 @@ def fetch_all_users():
 @mcp.tool()
 def update_user(data: UpdateUserSchema):
     """
-    Update user by id
+    Update user by email
     """
     try:
         db = get_db()
@@ -114,6 +114,31 @@ def update_user(data: UpdateUserSchema):
             "updated_user": result
         }
         
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+@mcp.tool()
+def delete_user(data: DeleteUserSchema):
+    """
+    Delete user by email 
+    """
+    try:
+        db = get_db()
+        user_collection = db["users"]
+        find_user = user_collection.find_one({"email": data.email})
+        if find_user is None:
+            return {
+                "success": False,
+                "message": f"User not found for emailID: {data.email}"
+            }
+        result = user_collection.delete_one({"email": data.email})
+        return {
+            "success": True,
+            "message": "Successfully deleted user"
+        }
     except Exception as e:
         return {
             "success": False,
