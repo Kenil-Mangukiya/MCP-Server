@@ -1,0 +1,15 @@
+# Virtual environment
+venv/
+.env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# MCP / runtime artifacts
+.mcp/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
