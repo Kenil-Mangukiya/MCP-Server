@@ -2,7 +2,7 @@ from mcp.server.fastmcp import FastMCP
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 from db.db import get_db
-from schemas.user import CreateUserSchema
+from schemas.user import CreateUserSchema, UpdateUserSchema
 import hashlib
 import logging
 import sys
@@ -76,6 +76,49 @@ def fetch_all_users():
             "message": str(e)
         } 
 
+@mcp.tool()
+def update_user(data: UpdateUserSchema):
+    """
+    Update user by id
+    """
+    try:
+        db = get_db()
+        user_collection = db["users"]
+        update_data = {}
+        
+        if data.username is not None:
+            update_data["username"] = data.username
+        if data.password is not None:
+            update_data["password"] = hashlib.sha256(
+            data.password.encode()
+        ).hexdigest()
+            
+        if not update_data:
+            return {
+                "success": False,
+                "message": "No data provided to update"
+            }
+        result = user_collection.update_one({"email": data.email},
+                                            {
+                                                "$set": update_data
+                                            }
+                                            )
+        if result.matched_count == 0:
+            return {
+                "success": False,
+                "message": f"No user found for emailID: {data.email}"
+            }
+        return {
+            "success": True,
+            "message": "User updated successully",
+            "updated_user": result
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }
 
 if __name__ == "__main__":
     mcp.run()
