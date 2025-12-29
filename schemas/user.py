@@ -14,3 +14,5 @@ class UpdateUserSchema(BaseModel):
 class DeleteUserSchema(BaseModel):
     email: EmailStr
     
+class GetUserSchema(BaseModel):
+    email: EmailStr

@@ -2,7 +2,7 @@ from mcp.server.fastmcp import FastMCP
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 from db.db import get_db
-from schemas.user import CreateUserSchema, UpdateUserSchema, DeleteUserSchema
+from schemas.user import CreateUserSchema, UpdateUserSchema, DeleteUserSchema, GetUserSchema
 import hashlib
 import logging
 import sys
@@ -132,13 +132,48 @@ def delete_user(data: DeleteUserSchema):
         if find_user is None:
             return {
                 "success": False,
-                "message": f"User not found for emailID: {data.email}"
+                "message": f"User not found for email id: {data.email}"
             }
         result = user_collection.delete_one({"email": data.email})
         return {
             "success": True,
             "message": "Successfully deleted user"
         }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e)
+        }
+
+@mcp.tool()
+def get_one_user(data: GetUserSchema):
+    """
+    Get user by email
+    """
+    try:
+        db = get_db()
+        user_collection = db["users"]
+        if data.email is None:
+            return {
+                "success": False,
+                "message": "User email id is required to get userdata"
+            }
+        result = user_collection.find_one({"email": data.email})
+        if result is None:
+            return {
+                "success": False,
+                "message": f"No user found for email id: {data.email}"
+            }
+        return {
+            "success": True,
+            "message": f"Successfully found userdata for email id: {data.email}",
+            "user_data": {
+                "id": str(result["_id"]),
+                "username": result.get("username"),
+                "email": result.get("email")
+            }
+        }
+
     except Exception as e:
         return {
             "success": False,
